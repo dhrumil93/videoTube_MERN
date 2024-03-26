@@ -72,6 +72,20 @@ userSchema.methods.generateAccessToken = function () {
     }
   );
 };
+userSchema.methods.generateRefreshToken = function () {
+  return Jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      userName: this.userName,
+      fullname: this.fullname,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
+};
 
 userSchema.methods.generateRefreshAccessToken = function () {};
 export const User = mongoose.model("User", userSchema);
