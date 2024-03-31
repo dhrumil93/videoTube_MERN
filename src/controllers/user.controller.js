@@ -14,7 +14,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new apiError(400, "All fields are compulsoray");
   }
 
-  const existedUser = user.findOne({
+  const existedUser = await user.findOne({
     $or: [{ username }, { email }],
   });
   if (existedUser) {
@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new apiError(404, "AVATAR not found");
   }
 
-  const User = await User.create({
+  const User = await user.create({
     fullName,
     avatar: avatar.url,
     coverImage: coverImage.url || "",
