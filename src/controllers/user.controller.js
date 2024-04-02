@@ -13,24 +13,17 @@ const registerUser = asyncHandler(async (req, res) => {
   ) {
     throw new apiError(400, "All fields are compulsoray");
   }
-
-  const existedUser = await user.findOne({
-    $or: [{ username }, { email }],
-  });
-  if (existedUser) {
-    throw new apiError(409, "User Already exist");
-  }
   const avatarPath = req.files?.avatar[0]?.path;
   const coverImagePath = req.files?.coverImage[0]?.path;
 
   if (!avatarPath) {
-    throw new apiError(404, "AvatarPath Not Found");
+    throw new ApiError(404, "AvatarPath Not Found");
   }
   const avatar = await uploadOnClound(avatarPath);
   const coverImage = await uploadOnClound(coverImagePath);
 
   if (!avatar) {
-    throw new apiError(404, "AVATAR not found");
+    throw new ApiError(404, "AVATAR not found");
   }
 
   const User = await user.create({
@@ -52,6 +45,14 @@ const registerUser = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(200, createdUser, "User Registered Succesfully!!"));
 });
+
+// const existedUser = User.findOne({
+//   $or: [{ username }, { email }],
+// });
+// if (existedUser) {
+//   throw new apiError(409, "User Already exist");
+// } 
+
 export { registerUser };
 
 /*
