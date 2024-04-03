@@ -11,7 +11,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
-    throw new apiError(400, "All fields are compulsoray");
+    throw new ApiError(400, "All fields are compulsoray");
   }
   const avatarPath = req.files?.avatar[0]?.path;
   const coverImagePath = req.files?.coverImage[0]?.path;
@@ -26,7 +26,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "AVATAR not found");
   }
 
-  const User = await user.create({
+  const User = await User.create({
     fullName,
     avatar: avatar.url,
     coverImage: coverImage.url || "",
@@ -39,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
   if (!createdUser) {
-    throw new apiError(500, "Something went wrong while registering user");
+    throw new ApiError(500, "Something went wrong while registering user");
   }
   return res
     .status(201)
