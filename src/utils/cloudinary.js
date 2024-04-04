@@ -10,13 +10,18 @@ cloudinary.config({
 
 const uploadOnClound = async (localfilepath) => {
   try {
+    console.log(localfilepath);
     if (!localfilepath) return null;
     const response = await cloudinary.uploader.upload(localfilepath, {
       resource_type: "auto",
+      upload_preset: "videoTube",
     });
+
     console.log("File uploaded on cloud", response.url);
+    fs.unlinkSync(localfilepath);
     return response;
   } catch (error) {
+    console.error(error);
     fs.unlinkSync(localfilepath); // remove the locally stored temporary file as the upload operation get failed
     return null;
   }
