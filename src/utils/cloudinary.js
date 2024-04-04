@@ -21,7 +21,7 @@ const uploadOnClound = async (localfilepath) => {
     fs.unlinkSync(localfilepath);
     return response;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     fs.unlinkSync(localfilepath); // remove the locally stored temporary file as the upload operation get failed
     return null;
   }
