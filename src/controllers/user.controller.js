@@ -13,7 +13,9 @@ const registerUser = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(400, "All fields are compulsoray");
   }
+  console.log(req.files);
   const avatarPath = req.files?.avatar[0]?.path;
+
   const coverImagePath = req.files?.coverImage[0]?.path;
 
   if (!avatarPath) {
@@ -26,13 +28,13 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "AVATAR not found");
   }
 
-  const User = await User.create({
-    fullName,
+  const userDetail = await User.create({
+    fullname: fullName,
     avatar: avatar.url,
     coverImage: coverImage.url || "",
     email,
     password,
-    username: username.toLowercase(),
+    userName: username.toLowerCase(),
   });
 
   const createdUser = await User.findById(user._id).select(
