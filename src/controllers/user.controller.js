@@ -37,9 +37,9 @@ const registerUser = asyncHandler(async (req, res) => {
     userName: username.toLowerCase(),
   });
 
-  const createdUser = await userDetail.findById(user._id).select(
-    "-password -refreshToken"
-  );
+  const createdUser = await userDetail
+    .findById(user._id)
+    .select("-password -refreshToken");
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering user");
   }
@@ -53,9 +53,11 @@ const registerUser = asyncHandler(async (req, res) => {
 // });
 // if (existedUser) {
 //   throw new apiError(409, "User Already exist");
-// } 
+// }
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {});
+
+export { registerUser, loginUser };
 
 /*
 User details from front end
@@ -69,3 +71,12 @@ user creation
 return response
 
  */
+
+/*
+req.body -> data
+username , email based login
+find / match the user
+check the password 
+access / refresh token
+send cookie
+*/
