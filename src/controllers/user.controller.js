@@ -4,6 +4,19 @@ import { User } from "../models/user.model.js";
 import { uploadOnClound } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+const generateRefreshAccessToken = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+  } catch (error) {
+    throw new ApiError(500, "Something Went Wrong !!");
+  }
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
   console.log("email :", email);
@@ -55,8 +68,57 @@ const registerUser = asyncHandler(async (req, res) => {
 //   throw new apiError(409, "User Already exist");
 // }
 
-const loginUser = asyncHandler(async (req, res) => {});
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, username, password } = req.body;
 
+  if (!username || !email) {
+    throw new ApiError(400, " Username or Email required !!");
+  }
+
+  const user = await User.findOne({
+    $or: [username, email],
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User not exist");
+  }
+  const isPasswordValid = await user.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Enter right credentials");
+  }
+  const { refreshToken, accessToken } = await generateRefreshAccessToken(
+    user._id
+  );
+
+  const loggedInuser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: loggedInuser,
+          accessToken,
+          refreshToken,
+        },
+        "User Logged In Successfully!!"
+      )
+    );
+
+});
+const logOutUser = asyncHandler(async (req , res) => {
+  
+})
 export { registerUser, loginUser };
 
 /*
