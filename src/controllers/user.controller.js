@@ -3,6 +3,7 @@ import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnClound } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const generateRefreshAccessToken = async (userId) => {
   try {
@@ -114,12 +115,32 @@ const loginUser = asyncHandler(async (req, res) => {
         "User Logged In Successfully!!"
       )
     );
-
 });
-const logOutUser = asyncHandler(async (req , res) => {
-  
-})
-export { registerUser, loginUser };
+const logOutUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        refreshToken: undefined,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged OUT!!"));
+});
+
+export { registerUser, loginUser, logOutUser };
 
 /*
 User details from front end
