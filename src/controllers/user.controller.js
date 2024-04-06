@@ -13,17 +13,18 @@ const generateRefreshAccessToken = async (userId) => {
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
+    return { refreshToken, accessToken };
   } catch (error) {
     throw new ApiError(500, "Something Went Wrong !!");
   }
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, username, password } = req.body;
+  const { fullName, email, userName, password } = req.body;
   console.log("email :", email);
 
   if (
-    [fullName, email, username, password].some((field) => field?.trim() === "")
+    [fullName, email, userName, password].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are compulsoray");
   }
@@ -48,11 +49,12 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage.url || "",
     email,
     password,
-    userName: username.toLowerCase(),
+    userName: userName.toLowerCase(),
   });
 
-  const createdUser = await User.findById(user._id)
-    .select("-password -refreshToken");
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering user");
   }
@@ -62,21 +64,21 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 // const existedUser = User.findOne({
-//   $or: [{ username }, { email }],
+//   $or: [{ userName }, { email }],
 // });
 // if (existedUser) {
 //   throw new apiError(409, "User Already exist");
 // }
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { email, userName, password } = req.body;
 
-  if (!(username || email)) {
-    throw new ApiError(400, " Username or Email required !!");
+  if (!(userName || email)) {
+    throw new ApiError(400, " userName or Email required !!");
   }
 
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ userName }, { email }],
   });
 
   if (!user) {
@@ -144,7 +146,7 @@ export { registerUser, loginUser, logOutUser };
 /*
 User details from front end
 validation on backend - not null
-if user is already registered : email , username
+if user is already registered : email , userName
 check for images and avatar
 upload on cloudinary
 create user object entry in db
@@ -156,7 +158,7 @@ return response
 
 /*
 req.body -> data
-username , email based login
+userName , email based login
 find / match the user
 check the password 
 access / refresh token
