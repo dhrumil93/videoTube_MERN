@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "AVATAR not found");
   }
 
-  const userDetail = await User.create({
+  const user = await User.create({
     fullname: fullName,
     avatar: avatar.url,
     coverImage: coverImage.url || "",
@@ -51,8 +51,7 @@ const registerUser = asyncHandler(async (req, res) => {
     userName: username.toLowerCase(),
   });
 
-  const createdUser = await userDetail
-    .findById(user._id)
+  const createdUser = await User.findById(user._id)
     .select("-password -refreshToken");
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering user");
@@ -77,7 +76,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({
-    $or: [username, email],
+    $or: [{ username }, { email }],
   });
 
   if (!user) {
