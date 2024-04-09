@@ -197,14 +197,27 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  await user.save({validateBeforeSave: false})
+  await user.save({ validateBeforeSave: false });
 
   return res
-  .status(200)
-  .json(new ApiResponse(200 , {} , "PassWord Changed Succefully !!"))
+    .status(200)
+    .json(new ApiResponse(200, {}, "PassWord Changed Succefully !!"));
 });
 
-export { registerUser, loginUser, logOutUser, refreshAccessToken };
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(200, req.user, "Current User Fetch Successfully!!");
+});
+
+export {
+  registerUser,
+  loginUser,
+  logOutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+};
 
 /*
 User details from front end
