@@ -29,15 +29,15 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are compulsoray");
   }
   console.log(req.files);
-  const avatarPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req.files?.avatar[0]?.path;
 
-  const coverImagePath = req.files?.coverImage[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-  if (!avatarPath) {
+  if (!avatarLocalPath) {
     throw new ApiError(404, "AvatarPath Not Found");
   }
-  const avatar = await uploadOnClound(avatarPath);
-  const coverImage = await uploadOnClound(coverImagePath);
+  const avatar = await uploadOnClound(avatarLocalPath);
+  const coverImage = await uploadOnClound(coverImageLocalPath);
 
   if (!avatar) {
     throw new ApiError(404, "AVATAR not found");
@@ -233,6 +233,58 @@ const updateAccDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Account Details Updated !!"));
 });
 
+const updateAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar File Not Found !!");
+  }
+
+  const avatar = await uploadOnClound(avatarLocalPath);
+
+  if (!avatar.url) {
+    throw new ApiError(400, "Error while uploading on Cloudinary");
+  }
+  const usesr = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+  .status(200)
+  .json(200, user, "Avatar Updated Succefully!!");
+});
+
+const updateCoverImage = asyncHandler(async (req, res) => {
+  const coverImageLocalPath = req.file?.path;
+
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "Cover Image Not Found !!");
+  }
+
+  const avatar = await uploadOnClound(coverImageLocalPath);
+
+  if (!avatar.url) {
+    throw new ApiError(400, "Error while uploading on Cloudinary");
+  }
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        coverImage: coverImage.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res.status(200).json(200, user, "CoverImage Updated Succefully!!");
+});
+
 export {
   registerUser,
   loginUser,
@@ -240,6 +292,9 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  updateAvatar,
+  updateAccDetails,
+  updateCoverImage,
 };
 
 /*
