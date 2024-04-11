@@ -255,9 +255,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
     { new: true }
   ).select("-password");
 
-  return res
-  .status(200)
-  .json(200, user, "Avatar Updated Succefully!!");
+  return res.status(200).json(200, user, "Avatar Updated Succefully!!");
 });
 
 const updateCoverImage = asyncHandler(async (req, res) => {
@@ -285,6 +283,28 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   return res.status(200).json(200, user, "CoverImage Updated Succefully!!");
 });
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { userName } = req.params;
+  if (!userName?.trim()) {
+    throw new ApiError(400, "UserName is Missing!!");
+  }
+  const channel = await User.aggregate([
+    {
+      $match: {
+        userName: userName?.toLowerCase(),
+      },
+    },
+    {
+      $lookup: {
+        from: "subscription",
+        localField: "_id",
+        foreignField: "channel",
+        as:"subscribers"
+      },
+    },
+  ]);
+});
+
 export {
   registerUser,
   loginUser,
@@ -295,6 +315,7 @@ export {
   updateAvatar,
   updateAccDetails,
   updateCoverImage,
+  getUserChannelProfile,
 };
 
 /*
